@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Stock DBMS</title>
+		<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+		<style type="text/css">
+			body {
+				height: 100vh;
+				width: 100%;
+				background-image: url("https://cdn.aarp.net/content/dam/aarp/money/investing/2020/01/1140-bull-and-bear-illustration-with-stock-chart.jpg");
+				background-repeat: no-repeat;
+				background-size: cover;  
+				color: #ffffff;
+			}
+
+			table {
+				border: 1.5px #cccccc solid;
+				background-color: #000000;
+				width: 100%;
+			}
+
+			#renderer tbody {
+				display: block;
+			  	max-height: 200px;
+			  	overflow: scroll; 
+			}
+
+			#renderer tr {
+				display: table;
+				table-layout: fixed;
+				width: 100%;
+			}
+
+			#control-panel {
+				margin: 20px auto 20px;
+				justify-content: center;
+			}
+
+			#gui button {
+				height: 100%;
+				width: 100%;
+				letter-spacing: 1.5px;
+			}
+
+			#renderer {
+				margin-top: 25px;
+			}
+
+			#tab-controller {
+				display: block;
+				margin: 0;
+				padding-left: 0;
+				list-style: none;
+			}
+
+			#tab-controller li {
+				height: 25px; 
+				display: inline-block; 
+				box-sizing:border-box;
+				vertical-align: top;
+				margin: 0 -1px -1px 0; 
+				border: 2px solid #BCBCBC;
+				padding: 0 15px;
+				line-height: 25px; 
+				background: #cdcdcd;
+			}
+
+			#tab-controller li a {
+				color: #000000;
+				font-size: 1.2em; 
+				text-decoration: none;
+			}
+
+			#tab-controller .active {
+				border-bottom: 2px solid #fff; 
+			}
+
+			.ui.form .field>label {
+				color: #000;
+			}
+		</style>>
+	</head>
+	<body>
+		<div class="ui container">
+			<!-- Every page can use this layout, and inject the content here. -->
+			{% block content %}
+			{% endblock %}
+		</div>
+	</body>
+</html>

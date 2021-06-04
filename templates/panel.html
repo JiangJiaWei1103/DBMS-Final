@@ -1,0 +1,585 @@
+{% extends "layout.html" %}
+{% block content %}
+<div id="control-panel" class="ui grid">
+	<button id="gui-btn" class="ui button yellow" >
+		Click to use GUI
+	</button>
+	<button id="cli-btn" class="ui button yellow">
+		Click to use CLI
+	</button>
+</div>
+<div id="gui">
+	<div class="ui segment">
+		<div class="ui three column grid">
+		  	<div class="row">
+		    	<div class="column">
+		    		<button id="add-client" class="ui button orange">Add New Client<br> (INSERT)</button>
+		    	</div>
+		    	<div class="column">
+		    		<button id="update-balance" class="ui button orange">Update Balance<br> (UPDATE)</button>
+		    	</div>
+		    	<div class="column">
+		    		<button id="search-clients" class="ui button orange">Search Security Specialist's Clients<br> (SELECT, IN/NOT IN)</button>
+		    	</div>
+		  	</div>
+		  	<div class="row">
+		  		<div class="column">
+		  			<button id="search-ordering-clients" class="ui button orange">Search Ordering History of Specific Stocks<br> (SELECT, EXISTS/NOT EXISTS)</button>
+		  		</div>
+		    	<div class="column">
+		    		<button id="get-ordering-statistics" class="ui button orange">Search Ordering History Statistics<br> (SELECT, COUNT, SUM, MAX, MIN, AVG)</button>
+		    	</div>
+		    	<div class="column">
+		    		<button id="get-popular-stocks" class="ui button orange">Search Popular Stocks<br> (SELECT, GROUP BY, HAVING)</button>
+		    	</div>
+		  	</div>
+		</div>
+	</div>
+</div>
+<div id="cli" style="display:none;">
+	<div class="ui form">
+		 <div class="field">
+		    <!-- <label>SQL Command</label> -->
+		    <textarea placeholder="Please Enter SQL Command"></textarea>
+		    <button id="sql-cmd-submit" class="ui button primary">
+				Submit
+			</button>
+		 </div>
+	</div>
+</div>
+<div id="renderer">
+	<ul id="tab-controller">
+		<li><a id="client" class="tab-item">Client</a></li>
+		<li><a id="bank" class="tab-item">Bank</a></li>
+		<li><a id="ordering" class="tab-item">Ordering</a></li>
+		<li><a id="sec-acc" class="tab-item">SecurityAccount</a></li>
+		<li><a id="set-acc" class="tab-item">SettlementAccount</a></li>
+		<button id="delete-client" class="ui button red" style="float: right; padding: 5px 10px;"><i class="trash alternate icon" style="margin: 0;"></i></button>
+	</ul>
+	<table>
+	  	<thead id="renderer-header">
+	    	<tr>
+	    		{% for attribute in attributes %}
+	    		<th>{{ attribute }}</th>
+	    		{% endfor %}
+	 	 	</tr>
+	 	</thead>
+  		<tbody id="renderer-field">
+  			{% for tuple in relation %}
+		    <tr>
+		    	{% for k, v in tuple.items() %}
+		    	<td>{{ v }}</td>
+		    	{% endfor %}
+		    </tr>
+		    {% endfor %}
+  		</tbody>
+	</table>
+</div>
+<div id="add-client-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Add New Tuple
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>SSN</label>
+				      <input type="text" placeholder="SSN">
+			    </div>
+				    <div class="field">
+				      <label>Name</label>
+				      <input type="text" placeholder="Name">
+			    </div>
+			    <div class="field">
+				      <label>Birthday</label>
+				      <input type="text" placeholder="Birthday">
+				</div>
+				<div class="field">
+				      <label>Phone</label>
+				      <input type="text" placeholder="Phone">
+			    </div>
+				    <div class="field">
+				      <label>Occupation</label>
+				      <input type="text" placeholder="Occupation">
+			    </div>
+			    <div class="field">
+				      <label>SetAccNo</label>
+				      <input type="text" placeholder="SetAccNo">
+				</div>
+				<div class="field">
+				      <label>SecAccNo</label>
+				      <input type="text" placeholder="SecAccNo">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="add-client-submit" class="ui positive right labeled icon button">
+			Add Client
+			<i class="plus icon"></i>
+		</div>
+	</div>
+</div>
+<div id="update-balance-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Update Balance of Settlement Account
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>AccNum</label>
+				      <input type="text" placeholder="AccNum">
+			    </div>
+				    <div class="field">
+				      <label>Balance</label>
+				      <input type="text" placeholder="Balance">
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="update-balance-submit" class="ui positive right labeled icon button">
+			Update balance
+			<i class="paper plane icon"></i>
+		</div>
+	</div>
+</div>
+<div id="search-clients-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Search for The Specified Security Specialist's Clients
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>ManagerSSN</label>
+				      <input type="text" placeholder="ManagerSSN">
+			    </div>
+				<div class="field">
+				      <label>Clients</label>
+				      <input type="text" placeholder="Clients">
+				      <small style="color: black;">Please enter Yes or No. If No, the results are other specialists' clients (the implementation of "NOT IN").</small>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="search-clients-submit" class="ui positive right labeled icon button">
+			Search for clients
+			<i class="paper plane icon"></i>
+		</div>
+	</div>
+</div>
+<div id="search-ordering-clients-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Search for Clients Who Have Ordered Stock XXXX
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>StockTicker</label>
+				      <input type="text" placeholder="StockTicker">
+				      <small style="color: black;">Select the ticker from set {1301, 1517, 2303, 2312, 2317, 2330, 2454, 2609} in this scenario.</small>
+			    </div>
+			    <div class="field">
+				      <label>Ordered</label>
+				      <input type="text" placeholder="Ordered">
+				      <small style="color: black;">Please enter Yes or No. If No, the results are clients who haven't ordered this stock (the implementation of "NOT EXISTS").</small>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="search-ordering-clients-submit" class="ui positive right labeled icon button">
+			Search for clients
+			<i class="paper plane icon"></i>
+		</div>
+	</div>
+</div>
+<div id="get-ordering-statistics-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Get History Ordering Statistics of The Specified Stock
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>StockTicker</label>
+				      <input type="text" placeholder="StockTicker">
+				      <small style="color: black;">Select the ticker from set {1301, 1517, 2303, 2312, 2317, 2330, 2454, 2609} in this scenario.</small>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="get-ordering-statistics-submit" class="ui positive right labeled icon button">
+			Get statistics
+			<i class="paper plane icon"></i>
+		</div>
+	</div>
+</div>
+<div id="get-popular-stocks-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Get Monthly Popular Stocks
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>Month</label>
+				      <input type="text" placeholder="Month">
+				      <small style="color: black;">Select from set {1, 2, 3, 4, 5} in this scenario, because the ordering data I designed are all in 2021. </small>
+			    </div>
+			    <div class="field">
+				      <label>CountThreshold</label>
+				      <input type="text" placeholder="CountThreshold">
+				      <small style="color: black;">Only stocks with counts greater than this threshold (popular stocks) will be shown. </small>
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="get-popular-stocks-submit" class="ui positive right labeled icon button">
+			Get popular stocks
+			<i class="paper plane icon"></i>
+		</div>
+	</div>
+</div>
+<div id="delete-client-field" class="ui modal">
+	<i class="close icon"></i>
+	<div class="header">
+		Delete Client
+	</div>
+	<div class="content">
+		<div class="ui form">
+			<div class="fields">
+			    <div class="field">
+				      <label>SSN</label>
+				      <input type="text" placeholder="SSN">
+			    </div>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<div id="delete-client-submit" class="ui positive right labeled icon button">
+			Delete client
+			<i class="paper plane icon"></i>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		// Function definitions
+		function parseInput(input) {
+			/* Parse the values in input fields and return the information with type "Object".
+			*/
+			let infoList = input;
+			let infoObj = {}
+			for (var i = 0; i < infoList.length; i++) {
+				let key = infoList[i].placeholder;
+				let val = infoList[i].value;
+				infoObj[key] = val;
+			}
+
+			return infoObj;
+		}
+
+		function renderTable(res) {
+			/* Render the complete information in the table. 
+			*/
+			attrNames = res["attributes"];
+			rel = res["relation"];
+
+			// Clean the content of the renderer
+			$("#renderer-header").empty();
+			$("#renderer-field").empty();
+
+			header_content = attrNames.join("</th><th>");
+			$("#renderer-header").append("<tr><th>"+header_content+"</th></tr>")
+
+			rel.forEach(tuple => {
+				addTuple(tuple);
+			});
+		}
+
+		function addTuple(tuple) {
+			/* Render the newly created client to the frontedn page.
+			*/
+			if (Array.isArray(tuple)) {
+				tuple = tuple
+			}
+			else {
+				tuple = Object.values(tuple)
+			}
+			tupleContent = tuple.join("</td><td>");
+			tupleContent = "<td>"+tupleContent+"</td>"
+			$("#renderer-field").append("<tr>"+tupleContent+"</tr>")
+		}
+
+		function updateBalance(updated) {
+			/* Render the updated balance value in the corresponding settlement account.
+			*/
+			targetAcc = $(`#renderer-field tr:contains(${updated["AccNum"]})`);
+			targetBalance = $(targetAcc.children()[2]);
+			$(targetBalance).html(updated["Balance"])
+		}
+
+		// Event listeners
+		$("#gui-btn").click(function() {
+			$("#gui").show();
+			$("#cli").hide();
+		});
+
+		$("#cli-btn").click(function() {
+			$("#cli").show();
+			$("#gui").hide();
+		});	
+
+		$("#add-client").click(function() {
+			$("#add-client-field").modal('show');
+		});
+
+		$("#update-balance").click(function() {
+			$("#update-balance-field").modal('show');
+		});
+
+		$("#search-clients").click(function() {
+			$("#search-clients-field").modal('show');
+		});
+
+		$("#search-ordering-clients").click(function() {
+			$("#search-ordering-clients-field").modal('show');
+		});
+
+		$("#get-ordering-statistics").click(function() {
+			$("#get-ordering-statistics-field").modal('show');
+		});
+
+		$("#get-popular-stocks").click(function() {
+			$("#get-popular-stocks-field").modal('show');
+		});
+
+		$("#delete-client").click(function() {
+			$("#delete-client-field").modal('show');
+		});
+
+		$("#sql-cmd-submit").click(function() {
+			let sqlCmd = $("#cli textarea").val();
+			$("#cli textarea").val("");   // Clean the content in textarea
+			
+			$.ajax({
+				url: "/sql-cli",
+				type: "POST",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify({"SqlCmd": sqlCmd}),
+				success: function(res) {
+					alert("SQL query succeeded!")
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$(".tab-item").removeClass("active");
+		});
+
+		$(".tab-item").click(function() {
+			$(".tab-item").removeClass("active");   // Clean the active tab
+			$(this).addClass("active");
+			var relName = this.id;   // Relation name
+
+			$.ajax({
+				url: "/render-table/"+relName,
+				type: "GET",
+				dataType: "json",
+				success: function(res) {
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+		});
+
+		$("#add-client-submit").click(function() {
+			let infoObj = parseInput($("#add-client-field input"));
+
+			$.ajax({
+				url: "/client",
+				type: "POST",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert("New client created successfully! Please check the last tuple of table - Client!");
+					renderTable(res)
+					// addTuple(res["new_client"]);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#add-client-field").modal('hide');
+			$(".tab-item").removeClass("active");
+			$("#client").addClass("active");
+		});
+
+		$("#update-balance-submit").click(function() {
+			let infoObj = parseInput($("#update-balance-field input"));
+
+			$.ajax({
+				url: "/acc/balance",
+				type: "PUT",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert("Balance updated successfully! Please check the balance attribute in the corresponding settlement account!");
+					renderTable(res);
+					// updateBalance(res["updated"]);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#update-balance-field").modal('hide');
+			$(".tab-item").removeClass("active");
+			$("#set-acc").addClass("active");
+		});
+
+		$("#search-clients-submit").click(function() {
+			let infoObj = parseInput($("#search-clients-field input"));
+
+			$.ajax({
+				url: "/search-clients",
+				type: "POST",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert("Clients searched successfully! Please check the table - Client!");
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#search-clients-field").modal('hide');
+			$(".tab-item").removeClass("active");
+			$("#client").addClass("active");
+		});
+
+		$("#search-ordering-clients-submit").click(function() {
+			let infoObj = parseInput($("#search-ordering-clients-field input"));
+			let ordered = "";
+			if (infoObj["Ordered"] == "Yes") {
+				ordered = "have";
+			}
+			else {
+				ordered = "haven't";
+			}
+
+			$.ajax({
+				url: "/search-ordering-clients",
+				type: "POST",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert(`Clients who ${ordered} ordered stock ${infoObj["StockTicker"]} are searched successfully! Please check the table - Client!`);
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#search-ordering-clients-field").modal('hide');
+			$(".tab-item").removeClass("active");
+			$("#client").addClass("active");
+		});
+
+		$("#get-ordering-statistics-submit").click(function() {
+			let infoObj = parseInput($("#get-ordering-statistics-field input"));
+
+			$.ajax({
+				url: "/get-ordering-statistics",
+				type: "POST",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert(`Statistics for stock ${infoObj["StockTicker"]} are calculated successfully!`);
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#get-ordering-statistics-field").modal('hide');
+			$(".tab-item").removeClass("active");
+		});
+
+		$("#get-popular-stocks-submit").click(function() {
+			let infoObj = parseInput($("#get-popular-stocks-field input"));
+
+			$.ajax({
+				url: "/get-popular-stocks",
+				type: "POST",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert(`Popular stocks with ordering count greater than ${infoObj["CountThreshold"]} in 20210${infoObj["Month"]} are found!`);
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#get-popular-stocks-field").modal('hide');
+			$(".tab-item").removeClass("active");
+		});
+
+		$("#delete-client-submit").click(function() {
+			let infoObj = parseInput($("#delete-client-field input"));
+
+			$.ajax({
+				url: "/client",
+				type: "DELETE",
+				contentType: "application/json",
+				dataType: "json",
+				data: JSON.stringify(infoObj),
+				success: function(res) {
+					alert(`Client ${infoObj["SSN"]} is deleted!`);
+					renderTable(res);
+				},
+				error: function(err) {
+					console.log(err);
+				}
+			});
+
+			$("#delete-client-field").modal('hide');
+			$(".tab-item").removeClass("active");
+			$("#client").addClass("active");
+		});
+	})
+</script>
+{% endblock %}
+
