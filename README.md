@@ -16,3 +16,5 @@
 ### Run web application
 * Start server.
   * Run `uvicorn app:app --reload --port <port_num>`
+* Open browser.
+  * Go to `http://127.0.0.1:<port_num>/`
