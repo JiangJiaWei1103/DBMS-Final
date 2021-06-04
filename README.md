@@ -2,7 +2,7 @@
 ## A simple dbms for stock brokerage
 
 ### Clone the repo
-* `git clone https://github.com/JiangJiaWei1103/DBMS-Final/`
+* `git clone https://github.com/JiangJiaWei1103/DBMS-Final.git`
 * cd into the repo.
 
 ### Setup the virtual env
